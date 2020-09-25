@@ -11,13 +11,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package node_exporter
 
 import (
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
-	"os"
 	"sort"
 
 	"github.com/prometheus/common/promlog"
@@ -136,7 +135,7 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	return handler, nil
 }
 
-func main() {
+func Run() error {
 	var (
 		listenAddress = kingpin.Flag(
 			"web.listen-address",
@@ -190,8 +189,7 @@ func main() {
 
 	level.Info(logger).Log("msg", "Listening on", "address", *listenAddress)
 	server := &http.Server{Addr: *listenAddress}
-	if err := https.Listen(server, *configFile, logger); err != nil {
-		level.Error(logger).Log("err", err)
-		os.Exit(1)
-	}
+	err := https.Listen(server, *configFile, logger)
+	level.Error(logger).Log("err", err)
+	return err
 }
